@@ -1,5 +1,5 @@
 %% Hello emacs, this is -*- matlab -*-
-%% $Id: analyze.m,v 1.1 2001/07/13 15:48:02 andre Exp $
+%% $Id: analyze.m,v 1.2 2001/07/31 11:24:19 andre Exp $
 %% André Rabello <Andre.Rabello@ufrj.br>
 
 %% This Matlab script reads the data produced during network building
@@ -9,33 +9,34 @@
 %% MAIN ROUTINE AREA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data = readdat(runfile, 15); % Read the run input;
+data = readdat(runfile, 13); % Read the run input;
 
 %% Print the 'run' data. Such data is organized as follows:
-%% data( 1,:) := current step
-%% [TRAIN] data( 2,:) := best SP found for this run
-%% [TRAIN] data( 3,:) := threshold value for the best SP found
-%% [TRAIN] data( 4,:) := MSE for the current network
-%% [TRAIN] data( 5,:) := efficiency for class 1 (usually electrons)
-%% [TRAIN] data( 6,:) := efficiency for class 2 (usually jets)
-%% [TRAIN] data( 7,:) := PE
-%% [TRAIN] data( 8,:) := -1
-%% [TEST]  data( 9,:) := best SP found for this run
-%% [TEST]  data(10,:) := threshold value for the best SP found
-%% [TEST]  data(11,:) := MSE for the current network
-%% [TEST]  data(12,:) := efficiency for class 1 (usually electrons)
-%% [TEST]  data(13,:) := efficiency for class 2 (usually jets)
-%% [TEST]  data(14,:) := PE
-%% [TEST]  data(15,:) := 1 in the case this net was saved. 0 otherwise
+%% [TRAIN] data( 1,:) := best SP found for this run
+%% [TRAIN] data( 2,:) := threshold value for the best SP found
+%% [TRAIN] data( 3,:) := MSE for the current network
+%% [TRAIN] data( 4,:) := efficiency for class 1 (usually electrons)
+%% [TRAIN] data( 5,:) := efficiency for class 2 (usually jets)
+%% [TRAIN] data( 6,:) := PE
+%% [TEST]  data( 7,:) := best SP found for this run
+%% [TEST]  data( 8,:) := threshold value for the best SP found
+%% [TEST]  data( 9,:) := MSE for the current network
+%% [TEST]  data(10,:) := efficiency for class 1 (usually electrons)
+%% [TEST]  data(11,:) := efficiency for class 2 (usually jets)
+%% [TEST]  data(12,:) := PE
+%% [TEST]  data(13,:) := 1 in the case this net was saved. 0 otherwise
 %%
 %% I will plot the following stuff:
 %% 1) MSE evolution for train  and test with the saved path;
 %% 2) SP evolution for train and test with the saved path;
 %% 3) PE evolution for train and test (dont need saved path);
 
+%% Used by all plotting
+trstep = 1:size(data,2);
+
 %% MSE Plotting
 subplot(1,1,1);
-plot(data(1,:), data(4,:), 'g--',data(1,:), data(11,:), 'b-');
+plot(trstep, data(3,:), 'g--',trstep, data(9,:), 'b-');
 title('MSE evolution over training');
 xlabel('Training Steps');
 ylabel('MSE');
@@ -45,40 +46,35 @@ print -depsc2 'mse-evolution.eps';
 
 %% SP Plotting
 subplot(1,1,1);
-plot(data(1,:), data(2,:), 'g--',data(1,:), data(9,:), 'b-');
+plot(trstep, data(1,:), 'g--',trstep, data(7,:), 'b-');
 title('SP Evolution over training');
 xlabel('Training Steps');
 ylabel('SP');
 grid on;
-legend('train set','test set');
+legend('train set','test set',4);
 print -depsc2 'sp-evolution.eps';
 
 %% PE Plotting
-if data(7,1) ~= 0.0,
-  subplot(2,1,1);
-  plot(data(1,:), data(7,:), 'g-');
-  grid;
-  title('PE Evolution (TRAIN SET)');
+if data(6,1) ~= 0.0,
+  subplot(1,1,1);
+  plot(trstep, data(6,:), 'g--',trset,data(12,:),'b-');
+  grid on;
+  title('PE Evolution');
   xlabel('Training Steps');
   ylabel('PE');
-  subplot(2,1,2);
-  plot(data(1,:), data(14,:), 'b-;test;');
-  grid;
-  title('PE Evolution (TEST SET)');
-  xlabel('Training Steps');
-  ylabel('PE');
+  legend('train set','test set');
   print -depsc2 'pe-evolution.eps';
 end
 
 %% Evolution off all three above for the test set
 subplot(2,1,1);
-plot(data(1,:), data(11,:), 'g-');
-title('Comparison between MSE and SP quantities');
+plot(trstep, data(9,:), 'g-');
+title('Comparison between MSE and SP quantities (TEST SET)');
 grid on;
 xlabel('Training Steps');
 ylabel('MSE');
 subplot(2,1,2);
-plot(data(1,:), data(9,:), 'b-');
+plot(trstep, data(7,:), 'b-');
 grid on;
 xlabel('Training Steps');
 ylabel('SP');
@@ -89,9 +85,9 @@ subplot(1,1,1);
 train = readdat(train_out,2);
 test  = readdat(test_out,2);
 %% Find the last threshold where I saved data
-tra = data(3,data(15,:)>0.5);
-tsa = data(10,data(15,:)>0.5);
-tra = tra(length(tra));
+tra = data(2,data(13,:)>0.5);
+tsa = data(8,data(13,:)>0.5);
+tra = tra(length(tsa));
 tsa = tsa(length(tsa));
 yline = 0:0.2:1;
 trline = tra * ones(size(yline)); clear tra;
@@ -161,14 +157,14 @@ grid on;
 print -depsc2 'importance.eps';
 
 %% A comparative test
-%subplot(1,1,1);
-%barh([tsrelev; tsimp]','g-','stacked');
-%grid on;
-%legend('Relevance','Importance');
-%title('Relevance versus Importance (TEST SET)'); 
-%ylabel('Inputs');
-%xlabel('Values');
-%print -depsc2 'test-relXimp.eps';
+subplot(1,1,1);
+barh([tsrelev; tsimp]','stacked');
+grid on;
+legend('Relevance','Importance');
+title('Relevance versus Importance (TEST SET)'); 
+ylabel('Inputs');
+xlabel('Values');
+print -depsc2 'test-relXimp.eps';
 
 %% The output efficiency when compared to (a) given test(s)
 subplot(1,1,1);
