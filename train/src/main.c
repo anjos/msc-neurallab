@@ -87,14 +87,13 @@ int main (int argc, char** argv)
 
       /* tests net with train file and save the resulting data */
       test_net(params->train, &train_an, &(params->anpar));
-      fprintf(params->runfile, "%d \n", runtest.quot);
-      fprintf(params->runfile, " %e %e %e %e %e %e %d\n",
+      fprintf(params->runfile, "%e %e %e %e %e %e",
 	      train_an.bestsp.value,
 	      train_an.threshold[train_an.bestsp.index],
 	      train_an.mse,
 	      train_an.eff1[train_an.bestsp.index],
 	      train_an.eff2[train_an.bestsp.index],
-	      train_an.area, -1);
+	      train_an.area);
 
       /* tests net with test file and save the resulting data */
       test_net(params->test, &an, &(params->anpar));
