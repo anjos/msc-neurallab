@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: mysystem.py,v 1.2 2001/08/01 20:39:11 andre Exp $
+# $Id: mysystem.py,v 1.3 2001/08/02 01:23:16 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module controls how the program will interact with the system, creating
@@ -72,7 +72,7 @@ class System:
         # try to process input options
         try:
             self.__opts, self.__args = \
-                         getopt.getopt(arguments,'c:b:h')
+                         getopt.getopt(arguments,'c:b:hw:')
             #print self.__args
             if len(self.__args) != 0:
                 raise InvalidArgument(self.__args[0])
@@ -119,11 +119,49 @@ class System:
                 except:
                     print "[MySystem] Unexpected error:", sys.exc_info()[0]
 
+            elif o == '-w': #define an already existing working directory
+                if os.path.exists(a+'/run.dat'): #if the directory is valid
+                    self.__config_wd(a)
+                else:
+                    mesg='The directory you gave me is _not_ from a known run!'
+                    mesg2="\n Or, it doesn't exist, which is worse..."
+                    print self.props.error(), mesg+mesg2
+                    sys.exit(2)
+
+    def __config_wd(self,dir):
+        "[Private] Configure base and working directory from another run"
+        if dir[len(dir)-1] == '/': #eliminate such char
+            dir = dir[:len(dir)-1]
+        split_path = string.split(dir,'/')
+        bwd = split_path[0]
+        if len(split_path) < 2: #I need, at least, the base and working dirs
+            mesg='The directory you gave me exists, but I cannot work'
+            mesg2=' with the working directory only!'
+            print self.props.error(), mesg+mesg2
+            sys.exit(2)
+
+        for i in range(1,len(split_path)-1):
+            bwd = bwd + '/' + split_path[i]
+        self.__config_base_wd(bwd)
+
+        #Our last resource go to the working directory variable, we are
+        # almost all set now...
+        self.__wd = split_path[len(split_path)-1]
+        
+        #Configure the run time of the test
+        stime = re.search("(?P<time>\d{7,20})",self.__wd)
+        self.__starttime = time.localtime(int(stime.group('time')))
+
+        #Give a warning message
+        print self.props.prompt(),\
+              'Base and Working directory configured successfuly!'
+
     def __config_base_wd(self,dir):
         "[Private] Configure the working directory"
 
         # First, check if the directory exists
         if os.path.exists(dir): #do nothing
+            self.__config.set('/config/base_wd',dir)
             return
 
         if string.find(dir,'/') == 0:
@@ -140,7 +178,7 @@ class System:
         match = re.match(os.environ['HOME']+'(?P<rest>.*)',dir)
         if match != None:
             current = match.group('rest')
-            self.__config.set('/config/base_wd','$HOME'+dir)
+            self.__config.set('/config/base_wd','@HOME@'+dir)
         else:
             current = os.getcwd()
             self.__config.set('/config/base_wd',dir)
@@ -153,7 +191,9 @@ class System:
         print self.props.prompt(), \
               '-c <string>     Configuration File (in python)'
         print self.props.prompt(), \
-              '-b <string>     The path for the output directory'
+              '-b <string>     The base path for the output directory'
+        print self.props.prompt(), \
+              '-w <string>     The path for the output directory (leave empty!)'
         print self.props.prompt(), \
               '-h            Print this help message' 
 
@@ -173,7 +213,7 @@ class System:
         # in UNIX ticks. This can only be overriden _if_ and only if the
         # machine where you are running the programs have it's current
         # time modified (changed to past times). In such case, there's a
-        # possibility of overiding the output directory, if you choose to run
+        # possibility of overriding the output directory, if you choose to run
         # these routines _exactly_ at the same instant as previous times and
         # with the same base working diretory. This shall be rare enough for
         # us _not_ to bother.
@@ -188,6 +228,8 @@ class System:
 	print self.props.prompt(),'Changing to', bwd+'/'+self.__wd, '...'
         if not os.path.exists(self.__wd): #checks the working directory
             os.mkdir(self.__wd)
+            #copy the current configuration into the working directory
+            self.__config.write(self.__wd+'/default.sdb')
         os.chdir(self.__wd)
 
     def chhd(self):
@@ -234,22 +276,39 @@ class System:
         a.analyze()
         self.chhd()
         print self.props.prompt(), "Analysis finished."
+
+    def force_compress(self):
+        """Will force working directory compression.
+
+        Even if configuration file says the contrary.
+        """
+        if self.__config.exists('/config/compress_wd'):
+            self.__config.set('/config/compress_wd','yes')
         
     def compress_wd(self):
         "Will compact the working directory in a tar.gzipped file"
-        wd = self.__wd
-        self.chbwd() #go to base working directory, no matter where you are
+        #if it's told to do so...
+        if self.__config.exists('/config/compress_wd') and \
+           self.__config.get('/config/compress_wd') != 'yes':
+            return
 
-        volname = time.strftime('"Net built at %A, %B %d of %Y at %H:%m:%S"',\
-                                self.__starttime)
-        volarg = '--label='+volname #set archive (volume) name or label
-        runlist = '/bin/tar cfz '+wd+'.tar.gz '+wd+' '+volarg
-        os.system(runlist)
+        else:
+            #else, goes on compressing the working directory
+            wd = self.__wd
+            self.chbwd() #go to base working directory
+            
+            #get the time in ticks in which the test started
+            volname = time.strftime( \
+                    '"Net built at %A, %B %d of %Y at %H:%m:%S"', \
+                    self.__starttime)
+            volarg = '--label='+volname #set archive (volume) name or label
+            runlist = '/bin/tar cfz '+wd+'.tar.gz '+wd+' '+volarg
+            os.system(runlist)
 
-        shutil.rmtree(wd) #remove the whole working directory
-        print self.props.prompt(), "Working directory compressed and removed"
-        self.chhd()
-        
+            shutil.rmtree(wd) #remove the whole working directory
+            print self.props.prompt(), \
+                  "Working directory compressed and removed"
+            self.chhd()
 
 ##############################################################################
 # EXCEPTIONS                                                                 #
