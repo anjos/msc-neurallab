@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/07/31 00:36:13 andre Exp $
+# $Id: Makefile,v 1.3 2001/07/31 11:27:15 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This script will install the scripts, setting their proper
@@ -30,7 +30,7 @@ config:
 
 .PHONY: clean
 
-GARBAGE = "*~" ".bak" ".pyc"
+GARBAGE = "*~" "*.bak" "*.pyc"
 GARBDIR = .
 FINDCLEANOPT = -a -type f -print0 #-maxdepth 1
 clean:
