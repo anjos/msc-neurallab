@@ -4,7 +4,7 @@ float version = 0.1
 
 [doc]
 # have to put version inside {} to protect against variable expansion
-string version = {$Id: default.sdb,v 1.1 2001/07/13 15:48:02 andre Exp $}
+string version = {$Id: default.sdb,v 1.2 2001/07/31 00:37:02 andre Exp $}
 
 - author
 string name = André Rabello dos Anjos 
@@ -15,7 +15,7 @@ string email = Andre.Rabello@ufrj.br
 string base_wd = ./nets
 
 - dir
-string base = $HOME$/work/neural
+string base = @HOME@/work/neural-lab
 string script = %/config/dir/base%/script
 string lib = %/config/dir/script%/lib
 string data = %/config/dir/script%/data-example
@@ -103,13 +103,13 @@ string line_type = filled
 string label = This run
 
 -- line_1
-string file = $HOME$/work/data/analysis-20001219/jetnet/nets/old/3/effic.dat
+string file = @HOME@/work/data/analysis-20001219/jetnet/nets/old/3/effic.dat
 string color = green
 string line_type = dashdot
 string label = Best 4-quantities neural
 
 -- line_2
-string file = $HOME$/work/data/analysis-20001219/lineareff.dat
+string file = @HOME@/work/data/analysis-20001219/lineareff.dat
 string color = blue
 string line_type = dashed
 string label = Linear
