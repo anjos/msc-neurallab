@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# This script runs MATLAB in background for executing the argument
+
+if [ $# != 1 ]; then
+	echo "usage: $0 script"
+	exit 1
+fi
+
+/usr/bin/matlab <<EOF
+$1
+exit
+EOF

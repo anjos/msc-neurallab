@@ -1,0 +1,115 @@
+[sdb]
+# very preliminary!
+float version = 0.1
+
+[doc]
+# have to put version inside {} to protect against variable expansion
+string version = {$Id: default.sdb,v 1.1 2001/07/13 15:48:02 andre Exp $}
+
+- author
+string name = André Rabello dos Anjos 
+string email = Andre.Rabello@ufrj.br
+
+[config]
+# From here on you can override with run time options
+string base_wd = ./nets
+
+- dir
+string base = $HOME$/work/neural
+string script = %/config/dir/base%/script
+string lib = %/config/dir/script%/lib
+string data = %/config/dir/script%/data-example
+
+- program
+string builder = %/config/dir/base%/train/train
+string tester = %/config/dir/base%/test/nnet
+
+- script
+string dryer = %/config/dir/lib%/gawk/dry.awk
+
+- network
+int input_dimension = 58
+int hidden_dimension = 5
+string net = net.dat
+
+- train
+string file = %/config/train_set/file%
+string test = %/config/test_set/file%
+string runfile = run.dat #in /config/results
+string config_file = config.dat #in /config/results
+string effic_file = effic.dat #in /config/results
+string network_saving = SP #Sum versus Product of efficiencies
+float learning_rate = 0.2
+float momentum = 0.9
+float lr_decay = 0.8
+int steps = 100
+int batch = 2
+int epoch = 10
+
+# Things that will be applied when testing the network
+- run
+string rawnet = rawnet.dat
+string relevance = true
+string importance = true
+string activation = builtin
+string precision = 64-bits
+
+# For testing the test set...
+- test_set
+string hint = test
+string file = %/config/dir/data%/%/config/test_set/hint%.dat
+string output = %/config/test_set/hint%-output.dat
+
+# For testing the validation set...
+- validation_set
+string hint = valid
+string file = %/config/dir/data%/%/config/validation_set/hint%.dat
+string output = %/config/validation_set/hint%-output.dat
+
+# For testing the training set...
+- train_set
+string hint = train
+string file = %/config/dir/data%/%/config/train_set/hint%.dat
+string output = %/config/train_set/hint%-output.dat
+
+[analysis]
+# This is to be very generic, in order to allow different statistical 
+# implementations. You can insert environment variables here, like in
+# a unix shell.
+string init = init.m
+
+- program
+string matsh = %/config/dir/script%/matsh
+string analyzer = %/config/dir/lib%/matlab/analyze.m
+
+- file
+# The names of files that shall be used by programs
+string runfile = %/config/train/runfile%
+string train_rel = %/config/train_set/hint%-relevance.dat
+string train_imp = %/config/train_set/hint%-importance.dat
+string train_out = %/config/train_set/output%
+string test_rel = %/config/test_set/hint%-relevance.dat
+string test_imp = %/config/test_set/hint%-importance.dat
+string test_out = %/config/test_set/output%
+string valid_rel = %/config/validation_set/hint%-relevance.dat
+string valid_imp = %/config/validation_set/hint%-importance.dat
+string valid_out = %/config/validation_set/output%
+
+- efficiency
+-- line_0
+string file = %/config/train/effic_file%
+string color = red
+string line_type = filled
+string label = This run
+
+-- line_1
+string file = $HOME$/work/data/analysis-20001219/jetnet/nets/old/3/effic.dat
+string color = green
+string line_type = dashdot
+string label = Best 4-quantities neural
+
+-- line_2
+string file = $HOME$/work/data/analysis-20001219/lineareff.dat
+string color = blue
+string line_type = dashed
+string label = Linear
