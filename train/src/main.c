@@ -127,35 +127,36 @@ int main (int argc, char** argv)
   /*    save_output("jetnet-out-train.dat", params->train); */
   /*    save_output("jetnet-out-test.dat", params->test); */
 
-  /* This will print some relevant information into file */
-  fprintf(params->cfile, " +- The LAST network was SAVED at step:: %d\n",
+  /* This will print some relevant information into file (SDB format) */
+  fprintf(params->cfile, "\n[results]\n");
+  fprintf(params->cfile, "int last_savement = %d\n",
 	  lastsaved);
 
-  fprintf(params->cfile, " +-+- <<TRAIN RESULTS>>\n");
-  fprintf(params->cfile, "   +- SP:: %.2f\n", train_best.bestsp.value);
-  fprintf(params->cfile, "   +- THRESH:: %.3f\n",
+  fprintf(params->cfile, "\n- train\n");
+  fprintf(params->cfile, "float sp = %.4f\n", train_best.bestsp.value);
+  fprintf(params->cfile, "float threshold = %.3f\n",
 	  train_best.threshold[train_best.bestsp.index]);
-  fprintf(params->cfile, "   +- MSE:: %.2e\n", train_best.mse);
-  fprintf(params->cfile, "   +- PE:: %.2e\n", train_best.area);
-  fprintf(params->cfile, "   +- Eff1 (%%):: %.2f\n",
-	  100*train_best.eff1[train_best.bestsp.index]);
-  fprintf(params->cfile, "   +- Eff2 (%%):: %.2f\n",
-	  100*train_best.eff2[train_best.bestsp.index]);
-  fprintf(params->cfile, "   +- BackRate2 (kHz):: %.2f\n", 
-	  25*(1-train_best.eff2[train_best.bestsp.index]));
+  fprintf(params->cfile, "float mse = %.4e\n", train_best.mse);
+  fprintf(params->cfile, "float area_over_roc = %.4e\n", train_best.area);
+  fprintf(params->cfile, "float class1_eff = %.4e\n",
+	  train_best.eff1[train_best.bestsp.index]);
+  fprintf(params->cfile, "float class2_eff = %.4e\n",
+	  train_best.eff2[train_best.bestsp.index]);
+  fprintf(params->cfile, "float class2_false_alarm = %.4e\n",
+	  (1-train_best.eff2[train_best.bestsp.index]));
 
-  fprintf(params->cfile, " +-+- <<TEST RESULTS>>\n");
-  fprintf(params->cfile, "   +- SP:: %.2f\n", best.bestsp.value);
-  fprintf(params->cfile, "   +- THRESH:: %.3f\n", 
+  fprintf(params->cfile, "\n- test\n");
+  fprintf(params->cfile, "float sp = %.4f\n", best.bestsp.value);
+  fprintf(params->cfile, "float threshold = %.3f\n", 
 	  best.threshold[best.bestsp.index]);
-  fprintf(params->cfile, "   +- MSE:: %.2e\n", best.mse);
-  fprintf(params->cfile, "   +- PE:: %.2e\n", best.area);
-  fprintf(params->cfile, "   +- Eff1 (%%):: %.2f\n",
-	  100*best.eff1[best.bestsp.index]);
-  fprintf(params->cfile, "   +- Eff2 (%%):: %.2f\n",
-	  100*best.eff2[best.bestsp.index]);
-  fprintf(params->cfile, "   +- BackRate2 (kHz):: %.2f\n", 
-	  25*(1-best.eff2[best.bestsp.index]));
+  fprintf(params->cfile, "float mse = %.4e\n", best.mse);
+  fprintf(params->cfile, "float area_over_roc = %.4e\n", best.area);
+  fprintf(params->cfile, "float class1_eff = %.4e\n",
+	  best.eff1[best.bestsp.index]);
+  fprintf(params->cfile, "float class2_eff = %.4e\n",
+	  best.eff2[best.bestsp.index]);
+  fprintf(params->cfile, "float class2_false_alarm = %.4e\n",
+	  (1-best.eff2[best.bestsp.index]));
   
   /* Free the input data */
   termparam(params);
