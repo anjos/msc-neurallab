@@ -1,5 +1,5 @@
 /* Hello emacs, this is -*- c -*- */
-/* $Id: parameter.c,v 1.1 2001/07/13 15:48:02 andre Exp $ */
+/* $Id: parameter.c,v 1.2 2001/08/02 03:46:30 andre Exp $ */
 /* André Rabello <Andre.Rabello@ufrj.br> */
 
 #include <popt.h>
@@ -38,7 +38,7 @@ static struct poptOption opttable[] = {
    "filename"},
   {"batch", 'p', POPT_ARG_LONG, NULL, 'p',
    "defines the batch size (patterns per update) [default: 10]", "long int (>0)"},
-  {"epoch", 'q', POPT_ARG_LONG, NULL, 'p',
+  {"epoch", 'q', POPT_ARG_LONG, NULL, 'q',
    "defines the epoch size (updates per parameter update) [default: 100]", "long int (>0)"},
   {"train-file", 'r', POPT_ARG_STRING, NULL, 'r', 
    "input data filename for training data [default: NO DEFAULT]", "filename"},
@@ -339,28 +339,30 @@ void dump_config (parameter_t* p)
     exit(EXIT_FAILURE);
   }
 
-  fprintf(p->cfile, "-+- <<RUN INFORMATION>>\n");
-  fprintf(p->cfile, " +- Date:: %s", ctime(&current_time));
+  /* SDB version */
+  fprintf(p->cfile, "[sdb]\nfloat version = 0.1\n");
+  
+  fprintf(p->cfile, "\n[files]\n");
+  fprintf(p->cfile, "string date = %s", ctime(&current_time));
 
-  fprintf(p->cfile, " +- Train file:: %s\n", p->train_filename);
-  fprintf(p->cfile, " +- Test file:: %s\n", p->test_filename);
-  fprintf(p->cfile, " +- Config file:: %s\n", p->config_filename);
-  fprintf(p->cfile, " +- Efficiency file:: %s\n", p->eff_filename);
-  fprintf(p->cfile, " +- Run file:: %s\n", 
-	  (p->runfile==stdout)?"Standard Output":p->run_filename);
+  fprintf(p->cfile, "string train_file = %s\n", p->train_filename);
+  fprintf(p->cfile, "string test_file = %s\n", p->test_filename);
+  fprintf(p->cfile, "string effic_file = %s\n", p->eff_filename);
+  fprintf(p->cfile, "string runfile = %s\n",
+	  (p->runfile==stdout)?"stdout":p->run_filename);
 
-  fprintf(p->cfile, " +-+- <<TRAIN PARAMETERS>>\n");
-  fprintf(p->cfile, "   +- Learning Rate:: %.3f\n", p->lr); 
-  fprintf(p->cfile, "   +- Momentum:: %.4f\n", p->momentum);
-  fprintf(p->cfile, "   +- Learning Rate Decay:: %.4f\n", p->lr_decay);
-  fprintf(p->cfile, "   +- Max. Training Steps:: %ld\n", p->maxsteps);
-  fprintf(p->cfile, "   +- Batch:: %ld\n", p->batch);
-  fprintf(p->cfile, "   +- Epoch:: %ld\n", p->epoch);
-  fprintf(p->cfile, "   +- No. Input Nodes:: %d\n", p->ninputs);
-  fprintf(p->cfile, "   +- No. Hidden Nodes:: %d\n", p->nhidden);
-  fprintf(p->cfile, "   +- Best net is saved by:: ");
-  if (p->anpar.eval_sp) fprintf(p->cfile, "Best SP product\n");
-  if (p->anpar.eval_area) fprintf(p->cfile, "Smaller area under ROC\n");
+  fprintf(p->cfile, "\n[parameters]\n");
+  fprintf(p->cfile, "float learning_rate = %.4e\n", p->lr); 
+  fprintf(p->cfile, "float momentum = %.4e\n", p->momentum);
+  fprintf(p->cfile, "float lr_decay = %.4e\n", p->lr_decay);
+  fprintf(p->cfile, "int steps = %ld\n", p->maxsteps);
+  fprintf(p->cfile, "int batch = %ld\n", p->batch);
+  fprintf(p->cfile, "int epoch = %ld\n", p->epoch);
+  fprintf(p->cfile, "int input_dimension = %d\n", p->ninputs);
+  fprintf(p->cfile, "int hidden_dimension = %d\n", p->nhidden);
+  fprintf(p->cfile, "string network_saving = ");
+  if (p->anpar.eval_sp) fprintf(p->cfile, "SP\n");
+  if (p->anpar.eval_area) fprintf(p->cfile, "Area\n");
 
   /* Do _not_ close the configuration file, somethings will be added later */
   /* fclose(p->cfile); */
