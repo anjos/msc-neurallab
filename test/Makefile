@@ -1,29 +1,51 @@
-# Hello emacs, this is -*- makefile -*-
-# $Id: Makefile,v 1.1 2001/07/13 15:48:02 andre Exp $
+# $Id: Makefile,v 1.2 2001/07/31 00:39:36 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
-# This Makefile will help make in building the Calo-Neural package
+# This Makefile will help make in building the neural-tester package
 
 # Some definition macros
 CC = gcc
 INCLUDES = include ../include
-CFLAGS = -O2 -Wall -ansi -pedantic -D_GNU_SOURCE $(INCLUDES:%=-I%)
+INCLUDECMD = $(INCLUDES:%=-I%)
+CFLAGS = -O2 -Wall -ansi -pedantic -D_GNU_SOURCE $(INCLUDECMD)
 LIBS = m popt
 LDFLAGS = -O2 -Wall $(LIBS:%=-l%)
+MKDEPFILE = .depend
+MKDEP = makedepend -f$(MKDEPFILE)
 
 # The name of files
-SRC = src/main.c src/neural.c src/lut.c src/parameter.c ../src/real.c ../src/analysis.c ../src/event.c
+SRC = src/main.c \
+	src/neural.c \
+	src/lut.c \
+	src/parameter.c \
+	../src/real.c \
+	../src/analysis.c \
+	../src/event.c
 OBJ = $(SRC:%.c=%.o)
 
-all: nnet 
+all: depend nnet 
 
 nnet: $(OBJ)
 	$(CC) $(LDFLAGS) $^ $(LIBS:%=-l%) -o $@
 
-.PHONY: clean
+.PHONY: clean depend
 
+depend:
+	@if [ ! -e $(MKDEPFILE) ]; then touch $(MKDEPFILE); fi 
+	$(MKDEP) $(INCLUDECMD) $(SRC) $(DATASPEC:%=./src/%.c)
+
+GARBAGE = "*~" "*.o" "TAGS" "nnet" "$(MKDEPFILE:%=%*)"
+GARBDIR = . ../src $(INCLUDES)
+FINDCLEANOPT = -a -type f -print0 #-maxdepth 1
 clean:
-	rm -f */*~ *~
-	rm -f nnet
-	rm -f $(SRC:%.c=%.o) $(SRC:%.c=%.c~) include/*~
+	@for i in $(GARBAGE); do \
+	    find $(GARBDIR) -name "$$i" $(FINDCLEANOPT) | xargs -0tr rm -f;\
+	 done
 
+tags:
+	@find . $(INCLUDES) -name '*.[ch]' | etags -
+
+# The dependencies (not obligatory)
+# =================================
+
+sinclude $(MKDEPFILE)
