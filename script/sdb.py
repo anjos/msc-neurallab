@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: sdb.py,v 1.2 2001/07/31 00:37:42 andre Exp $
+# $Id: sdb.py,v 1.3 2001/08/01 20:41:31 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module defines a set of functions that can lookup a configuration file,
@@ -306,6 +306,23 @@ class Parser:
         fp.close
         self.__temp = None #clear
                                 
+    def exists(self,path):
+        "Finds out whether some /path/you/want exists or not inside the tree."
+        # Syntax is /the/path/you/want/varname
+        split_path = string.split(path,'/')
+        split_path.pop(0)
+        temp=self.__params
+        if len(split_path[0]) == 0: #in case we give just '/'
+            return 1 #true
+        for i in split_path: #all other cases
+            try:
+                temp=temp[i]
+            except (KeyError):
+                return 0 #false
+
+        #In the case all tries didn't fail, we got a winner!
+        return 1 #true
+
     def get(self,path):
         "Locates the configuration data inside the configuration tree"
         # Syntax is /the/path/you/want/varname
