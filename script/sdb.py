@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: sdb.py,v 1.1 2001/07/13 15:48:02 andre Exp $
+# $Id: sdb.py,v 1.2 2001/07/31 00:37:42 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module defines a set of functions that can lookup a configuration file,
@@ -19,7 +19,7 @@
 #> string var6 = value6
 # For strings, you can reference other strings you've created in the file
 # and use environment variables. The syntax is the following:
-# $HOME$/x/y/z => is converted /your/home/directory/x/y/z
+# @HOME@/x/y/z => is converted /your/home/directory/x/y/z
 # %var3% => is converted to value3 (as defined above)
 #
 # End then import this module
@@ -116,19 +116,19 @@ class Parser:
         print '[SDB] Configuration file read succesfuly!'
     
     def __replace_environ(self,value):
-        #Eliminate $ from possible chars
-        mychars = string.replace(self.__mychars,'\$','')
-        name = re.findall('\$(?P<name>['+mychars+']+)\$',value)
+        #Eliminate @ from possible chars
+        mychars = string.replace(self.__mychars,'\@','')
+        name = re.findall('\@(?P<name>['+mychars+']+)\@',value)
         for i in name:
             try:
                 rep = os.environ[i]
             except KeyError:
-                print "[SDB] Can't find environment variable $"+i+"$"
+                print "[SDB] Can't find environment variable $"+i
                 print "[SDB] Error when processing", value
                 return None
             
             # print 'Replacing environment variable', i, 'by', rep
-            value = string.replace(value,'$'+i+'$',rep)
+            value = string.replace(value,'@'+i+'@',rep)
 
         return value
 
