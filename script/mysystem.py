@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: mysystem.py,v 1.1 2001/07/13 15:48:02 andre Exp $
+# $Id: mysystem.py,v 1.2 2001/08/01 20:39:11 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module controls how the program will interact with the system, creating
@@ -218,7 +218,8 @@ class System:
         self.chhd()
 
     def test_validation_set(self):
-        self.run_test('/config/validation_set')
+        if self.__config.exists('/config/validation_set'):
+            self.run_test('/config/validation_set')
 
     def test_test_set(self):
         self.run_test('/config/test_set')
