@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: analyzer.py,v 1.1 2001/07/13 15:48:02 andre Exp $
+# $Id: analyzer.py,v 1.2 2001/07/31 11:26:27 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module controls how the program analyze the results of training,
@@ -118,6 +118,7 @@ class Analyzer:
         "Will run the analysis itself, parsing arguments and calling Matlab"
         init_code = [self.parse_efficiencies()]
         init_code.extend(self.parse_filenames())
+        init_code.extend('addpath '+os.path.dirname(self.__analyzer)+";\n");
 
         #Build a temporary that will be called to initilize Matlab...
         print '[ANALYZER] Initializing Matlab from temporary script'
@@ -130,9 +131,7 @@ class Analyzer:
         os.remove(tfilename) #delete, as we no longer need it...
         initscript = string.replace(initfile,'.m','')
         script = string.replace(os.path.basename(self.__analyzer),'.m','')
-        command = self.__matsh+' "'+initscript+';'+\
-                  'addpath '+os.path.dirname(self.__analyzer)+";"+\
-                  'eval(\''+script+'\');"'
+        command = self.__matsh+' "'+initscript+';'+'eval(\''+script+'\');"'
         #Now I can call matlab with the required parameters
         print command
         os.system(command)
