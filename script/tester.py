@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: tester.py,v 1.1 2001/07/13 15:48:02 andre Exp $
+# $Id: tester.py,v 1.2 2001/08/03 14:07:28 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module defines the tester class, which is responsible for
@@ -58,19 +58,32 @@ class _Converter:
 
                 i = i + 1 #a blank line
                 for j in range(0,config[lname]['in']):
-                    if len(string.strip(self.__save[i])) != 0:
-                        config[lname]['weights'].append(self.__save[i])
-                    i = i + 2 #a blank line between valid ones
+                    weights = ''
+                    while len(string.strip(self.__save[i])) != 0:
+                        weights = weights + ' ' + self.__save[i]
+                        i = i + 1
+                    weights = string.strip(weights)
+                    config[lname]['weights'].append(weights)
+                    i = i + 1 #a blank line between valid ones
+
+                #convert all char lines into floats
                 config[lname]['weights'] = self.__convert_matrix(\
                     config[lname]['weights'])
 
                 #go to the threshold field
                 i = i + 2
-                config[lname]['bias'].append(self.__save[i])
+                bias = ''
+                while i < len(self.__save) and \
+                              len(string.strip(self.__save[i])) != 0:
+                    bias = bias + ' ' + self.__save[i]
+                    i = i + 1
+                bias = string.strip(bias)
+                config[lname]['bias'].append(bias)
+
+                #convert all char lines into floats
                 config[lname]['bias'] = self.__convert_matrix(\
                     config[lname]['bias'])
                 
-                i = i + 1
                 continue #stop
 
         #print config
