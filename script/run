@@ -10,7 +10,7 @@ def main():
     s.build() #builds a new network
     s.test_train_set() #test the network with the training set
     s.test_test_set() #test the network with the test set
-    #s.test_validation_set() #test the network with the validation set
+    s.test_validation_set() #test the network with the validation set if exists
     s.analyze() #analyze the results produce by earlier steps
     s.compress_wd() #compress the working directory
     sys.exit(1)
