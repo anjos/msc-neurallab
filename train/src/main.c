@@ -1,8 +1,9 @@
-#include <f2c.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <time.h>
 #include <math.h>
+#include <f2c.h>
 
 #include "jetnet.h"
 #include "real.h"
