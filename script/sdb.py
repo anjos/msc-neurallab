@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: sdb.py,v 1.3 2001/08/01 20:41:31 andre Exp $
+# $Id: sdb.py,v 1.4 2001/08/02 01:25:13 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module defines a set of functions that can lookup a configuration file,
@@ -262,7 +262,7 @@ class Parser:
         "This writes the variables to a string and repasses the rest"
         # print 'Analyzing path =>', path
         # print 'Current stream is ', self.__temp
-        if self.issection(self.get(path)):
+        if self.issection(self.__rawget(path)):
             split_path = string.split(path,'/') 
             level = len(split_path)-1
             current = split_path.pop()
@@ -274,14 +274,14 @@ class Parser:
                 if level == 3: #subsubsection
                     self.__temp.append('\n-- ' + current + '\n')
 
-            for dir in self.get(path).keys():
+            for dir in self.__rawget(path).keys():
                 if path == '/': #fix
                     newpath = path+dir
                 else:
                     newpath = path+'/'+dir
 
-                if not self.issection(self.get(newpath)): #write imediatelly
-                    value = self.get(newpath)
+                if not self.issection(self.__rawget(newpath)): #write now!
+                    value = self.__rawget(newpath)
                     varname = string.split(newpath,'/').pop()
                     vartype = str(type(value))
                     vartype = re.match("\<type\ \'(?P<type>"+self.__mytype+")'>",vartype).group('type')
@@ -322,6 +322,26 @@ class Parser:
 
         #In the case all tries didn't fail, we got a winner!
         return 1 #true
+
+    def __rawget(self,path):
+        """Locates the configuration data inside the configuration tree
+
+        As in self.get(), but won't self.__replace_references!
+        """
+        # Syntax is /the/path/you/want/varname
+        split_path = string.split(path,'/')
+        split_path.pop(0)
+        temp=self.__params
+        if len(split_path[0]) == 0: #in case we give just '/'
+            return temp
+        for i in split_path: #all other cases
+            try:
+                temp=temp[i]
+            except (KeyError):
+                print 'The path you required does not exist =>',path
+                raise #re-throw the exception
+
+        return temp
 
     def get(self,path):
         "Locates the configuration data inside the configuration tree"
