@@ -1,5 +1,5 @@
 %% Hello emacs, this is -*- matlab -*-
-%% $Id: analyze.m,v 1.2 2001/07/31 11:24:19 andre Exp $
+%% $Id: analyze.m,v 1.3 2001/08/02 03:44:23 andre Exp $
 %% André Rabello <Andre.Rabello@ufrj.br>
 
 %% This Matlab script reads the data produced during network building
@@ -55,29 +55,43 @@ legend('train set','test set',4);
 print -depsc2 'sp-evolution.eps';
 
 %% PE Plotting
+areaisthere = 0;
 if data(6,1) ~= 0.0,
+  areaisthere = 1;
   subplot(1,1,1);
-  plot(trstep, data(6,:), 'g--',trset,data(12,:),'b-');
+  plot(trstep, data(6,:), 'g--',trstep,data(12,:),'b-');
   grid on;
   title('PE Evolution');
   xlabel('Training Steps');
   ylabel('PE');
   legend('train set','test set');
-  print -depsc2 'pe-evolution.eps';
+  print -depsc2 'area-over-roc-evolution.eps';
 end
 
-%% Evolution off all three above for the test set
-subplot(2,1,1);
+%% Evolution off all two/three above for the test set
+if areaisthere == 1,
+  N = 3;
+else 
+  N = 2;
+end
+subplot(N,1,1);
 plot(trstep, data(9,:), 'g-');
-title('Comparison between MSE and SP quantities (TEST SET)');
+title('Comparison between TEST SET quantities');
 grid on;
 xlabel('Training Steps');
 ylabel('MSE');
-subplot(2,1,2);
+subplot(N,1,2);
 plot(trstep, data(7,:), 'b-');
 grid on;
 xlabel('Training Steps');
 ylabel('SP');
+if areaisthere == 1,
+  subplot(3,1,3);
+  plot(trstep, data(12,:), 'r-');
+  grid on;
+  xlabel('Training Steps');
+  ylabel('Area Over the ROC');
+end
 print -depsc2 'evolution.eps';
 
 %% The network output for testing and training
