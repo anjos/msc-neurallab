@@ -1,5 +1,5 @@
 # Hello emacs, this is -*- python -*-
-# $Id: mysystem.py,v 1.3 2001/08/02 01:23:16 andre Exp $
+# $Id: mysystem.py,v 1.4 2001/08/03 14:05:38 andre Exp $
 # André Rabello <Andre.Rabello@ufrj.br>
 
 # This module controls how the program will interact with the system, creating
@@ -230,6 +230,9 @@ class System:
             os.mkdir(self.__wd)
             #copy the current configuration into the working directory
             self.__config.write(self.__wd+'/default.sdb')
+            if os.path.exists('last'):
+                os.remove('last')
+            os.symlink(self.__wd,'last') #create a symbolic link from 'last'
         os.chdir(self.__wd)
 
     def chhd(self):
